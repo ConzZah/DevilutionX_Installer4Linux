@@ -1,6 +1,14 @@
 # DevilutionX_Installer4Linux
 basically a one-click Installer for DevilutionX on Linux.
 
+
+## INSTALLS ON:
+- x86
+- x86_64
+
+### TO BE IMPLEMENTED:
+- AARCH64 (raspi, etc)
+
 ## Download:
 
 <p> 

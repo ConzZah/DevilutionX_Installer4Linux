@@ -4,18 +4,18 @@ basically a one-click Installer for DevilutionX on Linux.
 
  ## TESTED ON:
 - x86 (Debian 12)
-- x86_64 (Debian 12)
-- AARCH64 (Raspberry Pi OS)
+- x86_64 (Alpine, Debian 12)
+- AARCH64 (Alpine, Raspberry Pi OS)
 
 
 ### what this will do:
 
-Download links for DevilutionX will always point to the latest release based on your systems architecture (which is automatically detected).
-The script will then create a directory, download the respective release and extract it.
+The download links in the script will always point to the latest release of DevilutionX based on your systems architecture  (which is automatically detected). 
+It will then create a directory, download the respective release and extract it.
 
 
 
-this project was created to get DevilutionX set-up as fast as possible (for LANs 4 example).
+This project was created to get DevilutionX set-up on as many devices as fast as possible. (for LANs 4 example).
 
 
 ## Download:

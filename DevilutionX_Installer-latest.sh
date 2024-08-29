@@ -2,19 +2,19 @@
   #=================================================
   # Project: DEVILUTIONX_INSTALLER4LINUX
   # Author:  ConzZah / 2024
-  # Last Modification: 14.06.2024 / 01:33  [v0.2]
+  # Last Modification: 29.08.2024 / 14:10  [v0.3]
   #=================================================
 ### setting variables #######################################################
 dl_path="/home/$USER"
-devolutionxpath="/home/$USER/.local/share/diasurgical/devilution"
-devolutionxpath__flatpak="/home/$USER/.var/app/org.diasurgical.DevilutionX/data/diasurgical/devilution"
+devilutionxpath="/home/$USER/.local/share/diasurgical/devilution"
+devilutionxpath__flatpak="/home/$USER/.var/app/org.diasurgical.DevilutionX/data/diasurgical/devilution"
 detected_architecture=$(uname -m)
 is_alpine=$(uname -v|grep -o -w Alpine)
 is_debian=$(uname -v|grep -o -w Debian)
 i386="devilutionx-linux-i386"
 x86_64="devilutionx-linux-x86_64"
 aarch64="devilutionx-linux-aarch64"
-deps_install_msg="INSTALLING DEPENDENCIES FOR DEVOLUTIONX.."
+deps_install_msg="INSTALLING DEPENDENCIES.."
 deps_done="DEPENDENCIES INSTALLED."
 i386_latest_release="https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-linux-i386.tar.xz"
 x86_x64_latest_release="https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-linux-x86_64.tar.xz"
@@ -33,34 +33,29 @@ detect_os
 }
 # detect_os
 function detect_os {
-if [[ "$is_alpine" == "Alpine" ]]; then _os=$is_alpine; devolutionxpath=$devolutionxpath__flatpak; echo ""; install_dependencies_4Alpine; fi
+if [[ "$is_alpine" == "Alpine" ]]; then _os=$is_alpine; devilutionxpath=$devilutionxpath__flatpak; echo ""; install_dependencies_4Alpine; fi
 if [[ "$is_debian" == "Debian" ]]; then _os=$is_debian; echo ""; install_dependencies; fi
 if [[ "$_os" == "" ]]; then echo ""; install_dependencies; fi
 }
 # install_dependencies
 function install_dependencies {
-echo "OS: $_os $detected_architecture"
-echo ""; echo "$deps_install_msg"; echo ""
+echo "OS: $_os $detected_architecture"; echo ""; echo "$deps_install_msg"; echo ""
 sudo apt install -y libsdl2-2.0-0 libsdl2-image-2.0-0 7zip >/dev/null 2>&1
 echo ""; echo "$deps_done"
 _install
 }
 # install_dependencies_4Alpine
 function install_dependencies_4Alpine {
-echo "OS: $_os $detected_architecture"
-echo ""; echo "$deps_install_msg"; echo ""
-doas apk add pipewire wireplumber pipewire-pulse pipewire-alsa; # doas apk del pulseaudio
-doas apk add xz 7zip wget flatpak && doas flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+echo "OS: $_os $detected_architecture"; echo ""; echo "$deps_install_msg"; echo ""
+doas apk add pipewire wireplumber pipewire-pulse pipewire-alsa xz 7zip wget flatpak && doas flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 doas addgroup $USER audio
 echo ""; echo "$deps_done"
 _install4Alpine
 }
 # _install4Alpine
 function _install4Alpine {
-echo ""; echo "INSTALLING DEVILUTIONX ON $_os $detected_architecture..."
-doas flatpak install flathub org.diasurgical.DevilutionX -y
-echo ""; echo "CREATING DESKTOP SHORTCUT..."
-wget -q -O DevilutionXicon.png https://dl.flathub.org/media/org/diasurgical/DevilutionX/efffbabdc1197860961d876a90396475/icons/128x128/org.diasurgical.DevilutionX.png
+echo ""; echo "INSTALLING DEVILUTIONX ON $_os $detected_architecture..."; doas flatpak install flathub org.diasurgical.DevilutionX -y
+echo ""; echo "CREATING DESKTOP SHORTCUT..."; wget -q -O DevilutionXicon.png https://dl.flathub.org/media/org/diasurgical/DevilutionX/efffbabdc1197860961d876a90396475/icons/128x128/org.diasurgical.DevilutionX.png
 doas mv DevilutionXicon.png /etc/
 _sc="DevilutionX.desktop"
 cd /home/$USER/Desktop
@@ -115,13 +110,11 @@ dl_DIABDAT_MPQ
 }
 #dl_DIABDAT_MPQ ( if DIABDAT.MPQ could not be found, the script will source it from archive.org )
 function dl_DIABDAT_MPQ { 
-if [ ! -f "$devolutionxpath/DIABDAT.MPQ" ]; then mkdir -p $devolutionxpath; cd $devolutionxpath
-echo ""; echo "DOWNLOADING DIABDAT.MPQ FROM ARCHIVE.ORG"; echo ""
-wget -q --show-progress "$DIABDAT_MPQ"
-echo ""; echo "DONE DOWNLOADING DIABDAT.MPQ"; fi
-if [ ! -f "$devolutionxpath/hellfire.mpq" ]; then mkdir -p $devolutionxpath; cd $devolutionxpath
+if [ ! -f "$devilutionxpath/DIABDAT.MPQ" ]; then mkdir -p $devilutionxpath; cd $devilutionxpath
+echo ""; echo "DOWNLOADING DIABDAT.MPQ FROM ARCHIVE.ORG"; echo ""; wget -q --show-progress "$DIABDAT_MPQ"; echo ""; echo "DONE DOWNLOADING DIABDAT.MPQ"; fi
+if [ ! -f "$devilutionxpath/hellfire.mpq" ]; then mkdir -p $devilutionxpath; cd $devilutionxpath
 echo ""; echo "DOWNLOADING hellfire.7z FROM ARCHIVE.ORG"; echo ""
-if [ -f "$devolutionxpath/hellfire.7z" ]; then rm hellfire.7z; fi
+if [ -f "$devilutionxpath/hellfire.7z" ]; then rm hellfire.7z; fi
 wget -q --show-progress "$hellfire_7z"
 7z x hellfire.7z && rm hellfire.7z; fi
 echo ""; echo "HAVE FUN PLAYING :D"; echo ""

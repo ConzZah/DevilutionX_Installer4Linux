@@ -1,12 +1,4 @@
 # DevilutionX_Installer4Linux
-basically a one-click Installer for DevilutionX on Linux.
-
-
- ## TESTED ON:
-- x86 (Debian 12)
-- x86_64 (Alpine, Debian 12)
-- AARCH64 (Alpine, Raspberry Pi OS)
-
 
 ### what this will do:
 

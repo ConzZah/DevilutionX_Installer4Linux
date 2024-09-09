@@ -2,7 +2,7 @@
   #=================================================
   # Project: DEVILUTIONX_INSTALLER4LINUX
   # Author:  ConzZah / 2024
-  # Last Modification: 09.09.2024 / 14:32  [v0.4]
+  # Last Modification: 09.09.2024 / 14:56  [v0.4]
   #=================================================
 ### setting variables #######################################################
 dl_path="/home/$USER"
@@ -101,12 +101,12 @@ quit
 function dl_DIABDAT_MPQ { 
 echo ""; echo "CHECKING FOR INSTALLED GAMEFILES.."
 if [ ! -f "$devilutionxpath/x.txt" ]; then if [ -f "$devilutionxpath/DIABDAT.MPQ" ]; then echo ""; echo "FOUND DIABLO!"; echo ""; fi; fi; if [ -f "$devilutionxpath/hellfire.mpq" ]; then echo "FOUND HELLFIRE!"; fi 
-if [ -f "$devilutionxpath/x.txt" ]; then rm $devilutionxpath/DIABDAT.MPQ; fi; if [ ! -f "$devilutionxpath/DIABDAT.MPQ" ]; then mkdir -p $devilutionxpath; cd $devilutionxpath; touch x.txt
+if [ -f "$devilutionxpath/x.txt" ]; then rm $devilutionxpath/DIABDAT.MPQ >/dev/null 2>&1; fi; if [ ! -f "$devilutionxpath/DIABDAT.MPQ" ]; then mkdir -p $devilutionxpath; cd $devilutionxpath; touch x.txt
 echo ""; echo "DOWNLOADING DIABDAT.MPQ FROM ARCHIVE.ORG"; echo ""
 wget -q --show-progress "$DIABDAT_MPQ"; echo ""; echo "DONE DOWNLOADING DIABDAT.MPQ"; rm x.txt; fi
 if [ ! -f "$devilutionxpath/hellfire.mpq" ]; then mkdir -p $devilutionxpath; cd $devilutionxpath
-echo ""; echo "DOWNLOADING hellfire.7z FROM ARCHIVE.ORG"; echo ""; if [ -f "$devilutionxpath/hellfire.7z" ]; then rm hellfire.7z; fi 
-wget -q --show-progress "$hellfire_7z"; 7z x hellfire.7z && rm hellfire.7z; fi
+echo ""; echo "DOWNLOADING hellfire.7z FROM ARCHIVE.ORG"; echo ""; if [ -f "$devilutionxpath/hellfire.7z" ]; then rm hellfire.7z >/dev/null 2>&1; fi 
+wget -q --show-progress "$hellfire_7z"; 7z x hellfire.7z && rm hellfire.7z >/dev/null 2>&1; fi
 quit
 }
 function quit { echo ""; echo "HAVE FUN PLAYING :D"; echo ""; echo "[ PRESS ANY KEY TO EXIT ]"; read -n 1 -s; echo ""; exit ;} 

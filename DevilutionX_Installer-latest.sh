@@ -2,7 +2,7 @@
   #=================================================
   # Project: DEVILUTIONX_INSTALLER4LINUX
   # Author:  ConzZah / 2024
-  # Last Modification: 09.09.2024 / 14:56  [v0.4]
+  # Last Modification: 15.09.2024 / 00:55  [v0.3]
   #=================================================
 ### setting variables #######################################################
 dl_path="/home/$USER"
@@ -52,21 +52,21 @@ if [[ "$detected_architecture" == "aarch64" ]]; then echo ""; dl_aarch64_devilut
 }
 # dl_i386_devilutionx
 function dl_i386_devilutionx {
-echo "$dl_msg"; echo ""; mkdir -p "$i386-latest"; cd "$i386-latest"
+echo "$dl_msg"; echo ""; mkdir -p "$i386-latest"; cd "$i386-latest"; rm "$i386.tar.xz" >/dev/null 2>&1
 wget -q --show-progress "$i386_latest_release"; echo ""; echo "$extract_msg"; echo ""; tar -xf "$i386.tar.xz"; rm "$i386.tar.xz"; echo "$dlx_done"
 sudo dpkg -i devilutionx.deb
 quit
 }
 # dl_x86_64_devilutionx
 function dl_x86_64_devilutionx {
-echo "$dl_msg"; echo ""; mkdir -p "$x86_64-latest"; cd "$x86_64-latest"
+echo "$dl_msg"; echo ""; mkdir -p "$x86_64-latest"; cd "$x86_64-latest"; rm "$x86_64.tar.xz" >/dev/null 2>&1
 wget -q --show-progress "$x86_x64_latest_release"; echo ""; echo "$extract_msg"; echo ""; tar -xf "$x86_64.tar.xz"; rm "$x86_64.tar.xz"; echo "$dlx_done" 
 sudo dpkg -i devilutionx.deb
 quit
 }
 # dl_aarch64_devilutionx
 function dl_aarch64_devilutionx {
-echo "$dl_msg"; echo ""; mkdir -p "$aarch64-latest"; cd "$aarch64-latest"
+echo "$dl_msg"; echo ""; mkdir -p "$aarch64-latest"; cd "$aarch64-latest"; rm "$aarch64.tar.xz" >/dev/null 2>&1
 wget -q --show-progress "$aarch64_latest_release"; echo ""; echo "$extract_msg"; echo ""; tar -xf "$aarch64.tar.xz"; rm "$aarch64.tar.xz"; echo "$dlx_done"
 sudo dpkg -i devilutionx.deb
 quit
@@ -106,7 +106,7 @@ echo ""; echo "DOWNLOADING DIABDAT.MPQ FROM ARCHIVE.ORG"; echo ""
 wget -q --show-progress "$DIABDAT_MPQ"; echo ""; echo "DONE DOWNLOADING DIABDAT.MPQ"; rm x.txt; fi
 if [ ! -f "$devilutionxpath/hellfire.mpq" ]; then mkdir -p $devilutionxpath; cd $devilutionxpath
 echo ""; echo "DOWNLOADING hellfire.7z FROM ARCHIVE.ORG"; echo ""; if [ -f "$devilutionxpath/hellfire.7z" ]; then rm hellfire.7z >/dev/null 2>&1; fi 
-wget -q --show-progress "$hellfire_7z"; 7z x hellfire.7z && rm hellfire.7z >/dev/null 2>&1; fi
+wget -q --show-progress "$hellfire_7z"; echo ""; echo "EXTRACTING hellfire.7z"; 7z x hellfire.7z -y >/dev/null 2>&1 && rm hellfire.7z >/dev/null 2>&1; fi
 quit
 }
 function quit { echo ""; echo "HAVE FUN PLAYING :D"; echo ""; echo "[ PRESS ANY KEY TO EXIT ]"; read -n 1 -s; echo ""; exit ;} 

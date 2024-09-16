@@ -99,6 +99,7 @@ echo "DONE."
 quit
 }
 function dl_DIABDAT_MPQ { 
+if [[ "$is_alpine" == "Alpine" ]]; then devilutionxpath=$devilutionxpath__flatpak; fi
 echo ""; echo "CHECKING FOR INSTALLED GAMEFILES.."
 if [ ! -f "$devilutionxpath/x.txt" ]; then if [ -f "$devilutionxpath/DIABDAT.MPQ" ]; then echo ""; echo "FOUND DIABLO!"; echo ""; fi; fi; if [ -f "$devilutionxpath/hellfire.mpq" ]; then echo "FOUND HELLFIRE!"; fi 
 if [ -f "$devilutionxpath/x.txt" ]; then rm $devilutionxpath/DIABDAT.MPQ >/dev/null 2>&1; fi; if [ ! -f "$devilutionxpath/DIABDAT.MPQ" ]; then mkdir -p $devilutionxpath; cd $devilutionxpath; touch x.txt

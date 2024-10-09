@@ -1,13 +1,13 @@
 # DevilutionX_Installer4Linux
 
-### what this will do:
+The script will download the latest release of DevilutionX based on your systems architecture.
 
-The download links in the script will always point to the latest release of DevilutionX based on your systems architecture  (which is automatically detected). 
-It will then create a directory, download the respective release and extract it.
+if on Debian or any rpm based distro it will also install the deb / rpm package respectively
+
+if on Alpine it will ask you if you want to install the flatpak version or build from source
 
 
-
-This project was created to get DevilutionX set-up on as many devices as fast as possible. (for LANs 4 example).
+Cheers, ConzZah
 
 
 ## Download:

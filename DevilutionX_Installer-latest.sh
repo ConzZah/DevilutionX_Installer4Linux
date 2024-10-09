@@ -2,114 +2,74 @@
   #=================================================
   # Project: DEVILUTIONX_INSTALLER4LINUX
   # Author:  ConzZah / 2024
-  # Last Modification: 15.09.2024 / 00:55  [v0.3]
+  # Last Modification: 09.10.2024 / 05:42  [v0.3]
   #=================================================
 ### setting variables #######################################################
-dl_path="/home/$USER"
-devilutionxpath="/home/$USER/.local/share/diasurgical/devilution"
-devilutionxpath__flatpak="/home/$USER/.var/app/org.diasurgical.DevilutionX/data/diasurgical/devilution"
-detected_architecture=$(uname -m)
-is_alpine=$(uname -v|grep -o -w Alpine)
-is_debian=$(uname -v|grep -o -w Debian)
-i386="devilutionx-linux-i386"
-x86_64="devilutionx-linux-x86_64"
-aarch64="devilutionx-linux-aarch64"
-deps_install_msg="INSTALLING DEPENDENCIES.."
-deps_done="DEPENDENCIES INSTALLED."
-i386_latest_release="https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-linux-i386.tar.xz"
-x86_x64_latest_release="https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-linux-x86_64.tar.xz"
-aarch64_latest_release="https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-linux-aarch64.tar.xz"
-DIABDAT_MPQ="https://archive.org/download/diabdat_202406/DIABDAT.MPQ"
-hellfire_7z="https://archive.org/download/diabdat_202406/hellfire.7z"
-dl_msg="DOWNLOADING $detected_architecture VERSION OF DEVILUTIONX..."
-extract_msg="EXTRACTING DEVILUTIONX..."
-dlx_done="DEVILUTIONX EXTRACTED TO: $dl_path."
-_os="" # <-- leave empty
-###########################################################################
+dl_path="/home/$USER"; curl="curl -# -L -o" 
+mpqpath="/home/$USER/.local/share/diasurgical/devilution"
+mpqpath_flatpak="/home/$USER/.var/app/org.diasurgical.DevilutionX/data/diasurgical/devilution"
+flatpak_present=$(type -p flatpak > /dev/null && flatpak list|grep -o DevilutionX|head -n 1)
+architecture=$(uname -m); if [[ "$architecture" =~ ^(i486|i586|i686)$ ]]; then architecture="i386"; fi
+DX="devilutionx-linux-$architecture"; latest_release="https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-linux-$architecture.tar.xz" # <-- $DX and $latest_release will point to systems architecture
+DIABDAT_MPQ="https://archive.org/download/diabdat_202406/DIABDAT.MPQ"; hellfire_7z="https://archive.org/download/diabdat_202406/hellfire.7z"
+deps_install_msg="INSTALLING DEPENDENCIES.."; deps_done="DEPENDENCIES INSTALLED."; dl_msg="DOWNLOADING DEVILUTIONX.. ($architecture)"
+i=0; bin=("apt" "apk" "dnf" "yum" "pacman" "zypper" "brew"); pm=""
+while [ $i -lt ${#bin[@]} ]; do
+if type -p "${bin[$i]}" > /dev/null; then pm="${bin[$i]}"; break; fi
+((i++))
+done
 function _init {
-c1="########################"
-cd "$dl_path"; echo "$c1"; echo " DevilutionX Installer"; echo "$c1"
-detect_os
+if [[ ! "$architecture" =~ ^(i386|x86_64|aarch64)$ ]]; then echo ""; echo "$architecture NOT SUPPORTED"; quit; fi # <-- if $architecture doesn't match i386 / x86_64 / aarch64, print message & quit 
+c1="########################"; cd "$dl_path"; echo "$c1"; echo " DevilutionX Installer"; echo "$c1"; echo ""
+if [[ "$pm" == "apk" ]]; then choose4alpine; quit; fi
+if [[ "$pm" == "apt" ]]; then deps_deb; install_deb; quit; fi
+if [[ "$pm" == "dnf" || "$pm" == "yum" ]]; then deps_rpm; install_rpm; quit; fi
+if [[ "$pm" == "pacman" || "$pm" == "zypper" ]]; then dl_devilutionx; quit; fi
 }
-# detect_os
-function detect_os {
-if [[ "$is_alpine" == "Alpine" ]]; then _os=$is_alpine; devilutionxpath=$devilutionxpath__flatpak; echo ""; install_dependencies_4Alpine; fi
-if [[ "$is_debian" == "Debian" ]]; then _os=$is_debian; echo ""; install_dependencies; fi
-if [[ "$_os" == "" ]]; then echo ""; install_dependencies; fi
+# deps_deb
+function deps_deb { echo "$deps_install_msg"; sudo apt install -y libsdl2-2.0-0 libsdl2-image-2.0-0 curl 7zip >/dev/null 2>&1; echo ""; echo "$deps_done"; dl_devilutionx ;}
+# deps_rpm
+function deps_rpm { echo "$deps_install_msg"; sudo "$pm" install -y SDL2 curl 7zip >/dev/null 2>&1; echo ""; echo "$deps_done"; dl_devilutionx ;}
+# dl_devilutionx
+function dl_devilutionx {
+echo ""; echo "$dl_msg"; echo ""; mkdir -p "$DX-latest"; cd "$DX-latest"; rm "$DX.tar.xz" >/dev/null 2>&1
+$curl "$DX.tar.xz" "$latest_release"; tar -xf "$DX.tar.xz"; rm "$DX.tar.xz" ;}
+# install_flatpak
+function install_flatpak { ! type -p flatpak > /dev/null && echo "" && echo "FLATPAK NOT FOUND ON SYSTEM" && quit; echo ""; flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo; flatpak install flathub org.diasurgical.DevilutionX ;}
+# install_deb
+function install_deb { echo ""; echo "INSTALLING DEB PACKAGE.."; echo ""; sudo dpkg -i devilutionx.deb ;}
+# install_rpm
+function install_rpm { echo ""; echo "INSTALLING RPM PACKAGE.."; echo ""; sudo "$pm" install devilutionx.rpm ;}
+# choose4alpine
+function choose4alpine {
+echo "ALPINE DETECTED"; echo ""; echo "1) INSTALL FLATPAK"; echo "2) BUILD FROM SOURCE"; echo ""
+read -r choose4alpine; case $choose4alpine in
+1) doas apk add flatpak sdl2 pipewire wireplumber pipewire-pulse pipewire-alsa curl 7zip; doas addgroup $USER audio; install_flatpak; quit;;
+2) Build4Alpine; quit;;
+*) clear; _init
+esac
 }
-# install_dependencies
-function install_dependencies {
-echo "OS: $_os $detected_architecture"; echo ""; echo "$deps_install_msg"; echo ""
-sudo apt install -y libsdl2-2.0-0 libsdl2-image-2.0-0 7zip >/dev/null 2>&1
-echo ""; echo "$deps_done"
-_install
+# Build4Alpine ( NOTE: built in zerotier multiplayer isn't working, so i disabled it. ) 
+function Build4Alpine { echo ""; echo "INSTALLING BUILD DEPENDENCIES.."
+doas apk update; doas apk add cmake build-base sdl2-dev sdl2_image-dev pkgconf libbz2 bzip2-dev zlib-dev libjpeg-turbo-dev libpng-dev libsodium-dev gtest-dev benchmark-dev gettext-dev fmt-dev xz curl 7zip
+src_xz="devilutionx-src.tar.xz"; src_link="https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-src.tar.xz"
+echo "GETTING LATEST SOURCE.."; echo ""; cd "$dl_path"; $curl "$src_xz" "$src_link"; tar -xf "$src_xz"; rm "$src_xz"; cd devilutionx-src-*
+cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DDISABLE_ZERO_TIER=ON
+cmake --build build -j $(getconf _NPROCESSORS_ONLN)
+cd build; doas make install; quit
 }
-# _install
-function _install {
-if [[ "$detected_architecture" == "i386" ]] || [[ "$detected_architecture" == "i686" ]]; then echo ""; dl_i386_devilutionx; fi 
-if [[ "$detected_architecture" == "x86_64" ]]; then echo ""; dl_x86_64_devilutionx; fi 
-if [[ "$detected_architecture" == "aarch64" ]]; then echo ""; dl_aarch64_devilutionx; fi 
+function dl_mpq {
+echo ""; echo "CHECKING FOR INSTALLED GAMEFILES.."; echo ""; mkdir -p "$mpqpath" && cd "$mpqpath"
+_diabdat () { rm DIABDAT.MPQ >/dev/null 2>&1; touch .x; echo "DOWNLOADING DIABDAT.MPQ FROM ARCHIVE.ORG"; echo ""; $curl DIABDAT.MPQ "$DIABDAT_MPQ" && rm .x; echo ""; echo "DONE DOWNLOADING DIABDAT.MPQ" ;}
+_hellfire () { rm hellfire.7z >/dev/null 2>&1; echo ""; echo "DOWNLOADING hellfire.7z FROM ARCHIVE.ORG"; echo ""; $curl hellfire.7z "$hellfire_7z"; echo ""; echo "EXTRACTING hellfire.7z"; 7z x hellfire.7z -y >/dev/null 2>&1 && rm hellfire.7z >/dev/null 2>&1 ;}
+[ -f "DIABDAT.MPQ" ] && [ ! -f ".x" ] && echo "--> DIABLO FOUND!" || _diabdat 
+[ -f "hellfire.mpq" ] && echo "--> HELLFIRE FOUND!" || _hellfire; quit
 }
-# dl_i386_devilutionx
-function dl_i386_devilutionx {
-echo "$dl_msg"; echo ""; mkdir -p "$i386-latest"; cd "$i386-latest"; rm "$i386.tar.xz" >/dev/null 2>&1
-wget -q --show-progress "$i386_latest_release"; echo ""; echo "$extract_msg"; echo ""; tar -xf "$i386.tar.xz"; rm "$i386.tar.xz"; echo "$dlx_done"
-sudo dpkg -i devilutionx.deb
-quit
-}
-# dl_x86_64_devilutionx
-function dl_x86_64_devilutionx {
-echo "$dl_msg"; echo ""; mkdir -p "$x86_64-latest"; cd "$x86_64-latest"; rm "$x86_64.tar.xz" >/dev/null 2>&1
-wget -q --show-progress "$x86_x64_latest_release"; echo ""; echo "$extract_msg"; echo ""; tar -xf "$x86_64.tar.xz"; rm "$x86_64.tar.xz"; echo "$dlx_done" 
-sudo dpkg -i devilutionx.deb
-quit
-}
-# dl_aarch64_devilutionx
-function dl_aarch64_devilutionx {
-echo "$dl_msg"; echo ""; mkdir -p "$aarch64-latest"; cd "$aarch64-latest"; rm "$aarch64.tar.xz" >/dev/null 2>&1
-wget -q --show-progress "$aarch64_latest_release"; echo ""; echo "$extract_msg"; echo ""; tar -xf "$aarch64.tar.xz"; rm "$aarch64.tar.xz"; echo "$dlx_done"
-sudo dpkg -i devilutionx.deb
-quit
-}
-# install_dependencies_4Alpine
-function install_dependencies_4Alpine {
-echo "OS: $_os $detected_architecture"; echo ""; echo "$deps_install_msg"; echo ""
-doas apk add pipewire wireplumber pipewire-pulse pipewire-alsa xz 7zip wget flatpak && doas flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-doas addgroup $USER audio; echo ""; echo "$deps_done"
-_install4Alpine
-}
-# _install4Alpine
-function _install4Alpine {
-echo ""; echo "INSTALLING DEVILUTIONX ON $_os $detected_architecture..."; doas flatpak install flathub org.diasurgical.DevilutionX -y
-echo ""; echo "CREATING DESKTOP SHORTCUT..."; wget -q -O DevilutionXicon.png https://dl.flathub.org/media/org/diasurgical/DevilutionX/efffbabdc1197860961d876a90396475/icons/128x128/org.diasurgical.DevilutionX.png
-doas mv DevilutionXicon.png /etc
-_sc="DevilutionX.desktop"
-cd /home/$USER/Desktop
-echo "[Desktop Entry]">$_sc
-echo "Version=1.0">>$_sc
-echo "Type=Application">>$_sc
-echo "Name=DevilutionX">>$_sc
-echo "Comment=DevilutionX">>$_sc
-echo "Exec=flatpak run org.diasurgical.DevilutionX">>$_sc
-echo "Icon=/etc/DevilutionXicon.png">>$_sc
-echo "Path=">>$_sc
-echo "Terminal=false">>$_sc
-echo "StartupNotify=false">>$_sc
-echo "DONE."
-quit
-}
-function dl_DIABDAT_MPQ { 
-if [[ "$is_alpine" == "Alpine" ]]; then devilutionxpath=$devilutionxpath__flatpak; fi
-echo ""; echo "CHECKING FOR INSTALLED GAMEFILES.."
-if [ ! -f "$devilutionxpath/x.txt" ]; then if [ -f "$devilutionxpath/DIABDAT.MPQ" ]; then echo ""; echo "FOUND DIABLO!"; echo ""; fi; fi; if [ -f "$devilutionxpath/hellfire.mpq" ]; then echo "FOUND HELLFIRE!"; fi 
-if [ -f "$devilutionxpath/x.txt" ]; then rm $devilutionxpath/DIABDAT.MPQ >/dev/null 2>&1; fi; if [ ! -f "$devilutionxpath/DIABDAT.MPQ" ]; then mkdir -p $devilutionxpath; cd $devilutionxpath; touch x.txt
-echo ""; echo "DOWNLOADING DIABDAT.MPQ FROM ARCHIVE.ORG"; echo ""
-wget -q --show-progress "$DIABDAT_MPQ"; echo ""; echo "DONE DOWNLOADING DIABDAT.MPQ"; rm x.txt; fi
-if [ ! -f "$devilutionxpath/hellfire.mpq" ]; then mkdir -p $devilutionxpath; cd $devilutionxpath
-echo ""; echo "DOWNLOADING hellfire.7z FROM ARCHIVE.ORG"; echo ""; if [ -f "$devilutionxpath/hellfire.7z" ]; then rm hellfire.7z >/dev/null 2>&1; fi 
-wget -q --show-progress "$hellfire_7z"; echo ""; echo "EXTRACTING hellfire.7z"; 7z x hellfire.7z -y >/dev/null 2>&1 && rm hellfire.7z >/dev/null 2>&1; fi
-quit
-}
-function quit { echo ""; echo "HAVE FUN PLAYING :D"; echo ""; echo "[ PRESS ANY KEY TO EXIT ]"; read -n 1 -s; echo ""; exit ;} 
-if [[ "$1" == "-mpq" ]]; then dl_DIABDAT_MPQ; fi
-_init 
+# quit
+function quit { echo ""; echo "[ PRESS ANY KEY TO EXIT ]"; echo ""; read -n 1 -s; exit ;} 
+# args:
+if [[ "$1" == "-build4alpine" ]]; then [[ "$pm" == "apk" ]] && Build4Alpine || echo "" && echo "YOU DON'T SEEM TO BE RUNNING ALPINE." && quit; fi
+if [[ "$1" == "-flatpak" ]]; then [ -z "$flatpak_present" ] && install_flatpak && quit || [ ! -z "$flatpak_present" ] && echo "" && echo "FLATPAK VERSION ALREADY INSTALLED." && quit || quit; fi
+if [[ "$1" == "-mpq" ]]; then [ -z "$flatpak_present" ] && dl_mpq || [ ! -z "$flatpak_present" ] && echo "" && echo "FLATPAK DETECTED." && mpqpath=$mpqpath_flatpak && dl_mpq; fi # <-- if flatpak version is present, change $mpqpath
+if [[ "$1" == "-help" ]]; then echo ""; echo "AVAILABLE ARGS:"; echo ""; echo "-mpq"; echo "-flatpak"; echo "-build4alpine"; echo ""; exit; fi
+_init
